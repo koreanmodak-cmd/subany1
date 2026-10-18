@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마지막 날 미션</title>
+  <style>
+    body { background-color: #fff0db; text-align: center; font-family: sans-serif; padding-top: 30px; overflow-x: hidden; margin: 0; }
+    h2 { margin-top: 20px; }
+    
+    /* 퍼즐 컨테이너 (2x2 그리드) */
+    .puzzle-board { width: 220px; height: 220px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin: 30px auto; background: #fff; padding: 5px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    
+    /* 퍼즐 조각 공통 스타일 (SVG 하트 이미지 적용) */
+    .piece { 
+      width: 110px; height: 110px; cursor: pointer; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 88 C -15 50, 20 -10, 50 25 C 80 -10, 115 50, 50 88 Z' fill='%23ff4d4d'/%3E%3C/svg%3E");
+      background-size: 220px 220px; 
+    }
+    
+    /* 각 조각의 배경 위치 설정 */
+    #p0 { background-position: 0 0; }
+    #p1 { background-position: -110px 0; }
+    #p2 { background-position: 0 -110px; }
+    #p3 { background-position: -110px -110px; }
+
+    #message { display: none; background: white; padding: 20px; border-radius: 15px; margin: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; z-index: 10; }
+    
+    /* 떨어지는 하트 이펙트 스타일 */
+    .falling-heart { position: fixed; top: -50px; font-size: 24px; animation: fall linear forwards; z-index: 5; user-select: none; pointer-events: none; }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <h2>유아용 하트 퍼즐이얌</h2>
+  <p>터치해서 하트 모양을 완성해줘!</p>
+  
+  <div class="puzzle-board" id="board">
+    <div class="piece" id="p0" onclick="rotatePiece(0)"></div>
+    <div class="piece" id="p1" onclick="rotatePiece(1)"></div>
+    <div class="piece" id="p2" onclick="rotatePiece(2)"></div>
+    <div class="piece" id="p3" onclick="rotatePiece(3)"></div>
+  </div>
+
+  <div id="message">
+    <h3>드디어 마지막날!</h3>
+    <p>이번주 연락 못했는데두 잘 버텨줘서 고마엉!<br>내내 출근하느라 피곤했을 텐데 매일 미션 해줘서 또 고마엉ㅎㅎ.<br>이제 곧 폰 받으니까 내일 제일 먼저 연락할게!<br>정말 많이 사랑하고 푹 자!! 뿅 공주님!</p>
+  </div>
+
+  <script>
+    // 초기 회전값 설정 (90, 180, 270 중 랜덤으로 섞음)
+    let rotations = [90, 180, 270, 90]; 
+    let isSolved = false;
+
+    // 퍼즐 초기화 세팅
+    window.onload = () => {
+      for(let i=0; i<4; i++) {
+        document.getElementById('p' + i).style.transform = `rotate(${rotations[i]}deg)`;
+      }
+    };
+
+    // 조각 터치 시 90도씩 회전
+    function rotatePiece(index) {
+      if (isSolved) return; // 이미 완성됐으면 클릭 막음
+      
+      rotations[index] += 90;
+      document.getElementById('p' + index).style.transform = `rotate(${rotations[index]}deg)`;
+      checkWin();
+    }
+
+    // 4조각 모두 0도(360도) 방향인지 확인
+    function checkWin() {
+      if (rotations.every(r => r % 360 === 0)) {
+        isSolved = true;
+        setTimeout(() => {
+          document.getElementById('message').style.display = 'block';
+          startHeartRain(); // 하트 쏟아지는 이펙트 실행
+        }, 400);
+      }
+    }
+
+    // 하트 와르르 쏟아지는 함수
+    function startHeartRain() {
+      for (let i = 0; i < 100; i++) {
+        setTimeout(createHeart, i * 100); // 0.1초 간격으로 하트 40개 생성
+      }
+    }
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.innerHTML = "❤️";
+      heart.classList.add("falling-heart");
+      
+      // 하트의 시작 위치, 크기, 떨어지는 속도 랜덤 지정
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.fontSize = (Math.random() * 20 + 15) + "px";
+      heart.style.animationDuration = (Math.random() * 2 + 2) + "s";
+      
+      document.body.appendChild(heart);
+      
+      // 애니메이션 끝나면 요소 삭제 (메모리 관리)
+      setTimeout(() => { heart.remove(); }, 4000);
+    }
+  </script>
+</body>
+</html>
