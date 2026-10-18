@@ -4,12 +4,16 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3일 차 미션</title>
   <style>
-    body { background-color: #f3e6ff; text-align: center; font-family: sans-serif; padding-top: 40px; }
-    .box-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 30px; max-width: 350px; margin-left: auto; margin-right: auto; }
-    .box-wrapper { width: 60px; height: 60px; font-size: 50px; cursor: pointer; user-select: none; }
+    body { background-color: #f3e6ff; text-align: center; font-family: sans-serif; padding-top: 40px; overflow-x: hidden; }
     
-    /* 덜덜 떨리는 애니메이션 */
-    .shake { animation: shakeAnim 0.15s infinite; pointer-events: none; }
+    /* 야바위를 위한 컨테이너 세팅 */
+    .yabawi-container { position: relative; width: 290px; height: 100px; margin: 30px auto; }
+    
+    /* 상자들 절대 좌표 및 이동 속도(transition) 설정 */
+    .box-wrapper { position: absolute; width: 60px; height: 60px; font-size: 50px; cursor: pointer; user-select: none; transition: left 0.3s ease-in-out; top: 10px; }
+    
+    /* 덜덜 떨리는 애니메이션 (정답 확인 시) */
+    .shake { animation: shakeAnim 0.1s infinite; pointer-events: none; }
     @keyframes shakeAnim {
       0% { transform: rotate(0deg); }
       25% { transform: rotate(15deg); }
@@ -19,22 +23,19 @@
     }
     
     #message { display: none; background: white; padding: 20px; border-radius: 15px; margin: 30px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    #failMsg { color: #ff4d4d; margin-top: 20px; font-weight: bold; min-height: 24px; }
+    #failMsg { color: #8e44ad; margin-top: 20px; font-weight: bold; min-height: 24px; font-size: 1.1rem; }
   </style>
 </head>
 <body>
-  <h2>바니를 향한 내 마음을 찾아라!</h2>
-  <p>5개의 상자 중 하나에만 메시지를 넣었셔</p>
+  <h2>👀 내 마음을 찾아라!</h2>
+  <p id="failMsg">잠시 후 게임이 시작됩니다...</p>
   
-  <div class="box-container" id="boxContainer">
-    <div class="box-wrapper" id="box1" onclick="openBox(1)">🎁</div>
-    <div class="box-wrapper" id="box2" onclick="openBox(2)">🎁</div>
-    <div class="box-wrapper" id="box3" onclick="openBox(3)">🎁</div>
-    <div class="box-wrapper" id="box4" onclick="openBox(4)">🎁</div>
-    <div class="box-wrapper" id="box5" onclick="openBox(5)">🎁</div>
+  <div class="yabawi-container" id="boxContainer">
+    <!-- 초기 위치: 0번째=10px, 1번째=115px, 2번째=220px -->
+    <div class="box-wrapper" id="box0" style="left: 10px;" onclick="openBox(0)">🎁</div>
+    <div class="box-wrapper" id="box1" style="left: 115px;" onclick="openBox(1)">🎁</div>
+    <div class="box-wrapper" id="box2" style="left: 220px;" onclick="openBox(2)">🎁</div>
   </div>
-  
-  <p id="failMsg"></p>
   
   <div id="message">
     <h3>찾았다! 내 마음 💌</h3>
@@ -42,34 +43,95 @@
   </div>
 
   <script>
-    let isOpening = false; // 중복 클릭 방지
+    let answerIndex = 1; // 1번 상자(가운데)가 진짜 선물!
+    let positions = [0, 1, 2]; // 화면상 놓인 위치 배열 (0:왼쪽, 1:가운데, 2:오른쪽)
+    let isShuffling = true; // 섞는 중엔 클릭 방지
+    let isOpening = false;
 
-    function openBox(num) {
-      if (isOpening) return;
+    // 페이지 열리면 야바위 연출 자동 시작
+    window.onload = () => {
+      setTimeout(showHeart, 800);
+    };
+
+    function showHeart() {
+      const failMsg = document.getElementById('failMsg');
+      const answerBox = document.getElementById('box' + answerIndex);
+      
+      failMsg.innerText = "잘 봐! 하트가 가운데 상자로 들어간다!";
+      setTimeout(() => { answerBox.innerText = "💖"; }, 800); // 하트 까꿍
+      
+      setTimeout(() => { 
+        answerBox.innerText = "🎁"; // 다시 닫힘
+        failMsg.innerText = "자, 이제 눈 크게 뜨고 따라가!! 휙휙휙";
+      }, 2500);
+      
+      // 닫히고 나서 섞기 시작
+      setTimeout(startShuffle, 3500);
+    }
+
+    function startShuffle() {
+      let shuffleCount = 0;
+      const maxShuffles = 15; // 15번 위치를 바꿈
+      
+      const shuffleInterval = setInterval(() => {
+        // 랜덤으로 위치 2개 골라서 스왑
+        let posA = Math.floor(Math.random() * 3);
+        let posB = Math.floor(Math.random() * 3);
+        while(posA === posB) posB = Math.floor(Math.random() * 3);
+
+        let boxIdxA = positions.indexOf(posA);
+        let boxIdxB = positions.indexOf(posB);
+
+        positions[boxIdxA] = posB;
+        positions[boxIdxB] = posA;
+
+        updatePositions(); // 화면 이동
+
+        shuffleCount++;
+        if (shuffleCount >= maxShuffles) {
+          clearInterval(shuffleInterval);
+          isShuffling = false; // 이제 클릭 가능
+          document.getElementById('failMsg').innerText = "자, 내 마음이 담긴 상자는 몇 번째일까?";
+        }
+      }, 350); // 0.35초 간격으로 섞기
+    }
+
+    // 배열에 맞춰 상자들의 실제 left 값 이동
+    function updatePositions() {
+      for (let i = 0; i < 3; i++) {
+        const box = document.getElementById('box' + i);
+        const leftPos = (positions[i] * 105) + 10; 
+        box.style.left = leftPos + 'px';
+      }
+    }
+
+    // 상자 열기 (클릭 시)
+    function openBox(idx) {
+      if (isShuffling || isOpening) return;
       isOpening = true;
       
-      const box = document.getElementById('box' + num);
+      const box = document.getElementById('box' + idx);
       const failMsg = document.getElementById('failMsg');
       
-      // 메시지 초기화 및 흔들림 애니메이션 시작
       failMsg.innerText = "두근두근...";
       box.classList.add('shake');
 
-      // 1.5초 후 결과 공개
       setTimeout(() => {
         box.classList.remove('shake');
         
-        if (num === 3) {
-          // 정답 상자 (3번)
+        if (idx === answerIndex) {
           box.innerText = "💖";
-          failMsg.innerText = "성공!";
+          failMsg.innerText = "성공! 눈썰미가 좋은걸? 🥰";
           document.getElementById('message').style.display = 'block';
-          document.getElementById('boxContainer').style.pointerEvents = 'none';
+          
+          // 게임 끝났으니 다른 상자 클릭 금지
+          for(let i=0; i<3; i++) {
+            document.getElementById('box'+i).style.pointerEvents = 'none';
+          }
         } else {
-          // 오답 상자
           box.innerText = "💦";
-          failMsg.innerText = "이거 아니지롱 메롱";
-          box.style.pointerEvents = 'none'; // 한 번 연 상자는 다시 못 누르게
+          failMsg.innerText = "앗 꽝이야! 다시 잘 골라봐 😜";
+          box.style.pointerEvents = 'none'; 
           isOpening = false;
         }
       }, 1500);
