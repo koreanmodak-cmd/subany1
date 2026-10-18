@@ -28,7 +28,7 @@
 </head>
 <body>
   <h2>👀 내 마음을 찾아라!</h2>
-  <p id="failMsg">잠시 후 게임이 시작됩니다...</p>
+  <p id="failMsg">자 잘할수 있지 우애기?...</p>
   
   <div class="yabawi-container" id="boxContainer">
     <!-- 초기 위치: 0번째=10px, 1번째=115px, 2번째=220px -->
@@ -57,12 +57,12 @@
       const failMsg = document.getElementById('failMsg');
       const answerBox = document.getElementById('box' + answerIndex);
       
-      failMsg.innerText = "잘 봐! 하트가 가운데 상자로 들어간다!";
+      failMsg.innerText = "자 가운데 상자에 하트를 싹 넣구요~";
       setTimeout(() => { answerBox.innerText = "💖"; }, 800); // 하트 까꿍
       
       setTimeout(() => { 
         answerBox.innerText = "🎁"; // 다시 닫힘
-        failMsg.innerText = "자, 이제 눈 크게 뜨고 따라가!! 휙휙휙";
+        failMsg.innerText = "어수비 잘한다! 화이팅 화이팅!";
       }, 2500);
       
       // 닫히고 나서 섞기 시작
@@ -91,7 +91,7 @@
         if (shuffleCount >= maxShuffles) {
           clearInterval(shuffleInterval);
           isShuffling = false; // 이제 클릭 가능
-          document.getElementById('failMsg').innerText = "자, 내 마음이 담긴 상자는 몇 번째일까?";
+          document.getElementById('failMsg').innerText = "하트가 어디있을까요 공주님?";
         }
       }, 350); // 0.35초 간격으로 섞기
     }
