@@ -4,28 +4,42 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>1일 차 미션</title>
   <style>
-    body { background-color: #ffe6e6; text-align: center; font-family: sans-serif; padding-top: 50px; }
-    #heart { font-size: 80px; cursor: pointer; user-select: none; transition: transform 0.1s; }
-    #heart:active { transform: scale(1.2); }
+    body { background-color: #ffe6e6; text-align: center; font-family: sans-serif; padding-top: 50px; overflow-x: hidden; }
+    
+    /* 폰트 크기 변화가 부드럽게 보이도록 transition 추가 */
+    #heart { font-size: 80px; cursor: pointer; user-select: none; display: inline-block; transition: font-size 0.2s; margin: 30px 0; }
+    #heart:active { transform: scale(1.1); } /* 누를 때 살짝 눌리는 느낌 */
+    
     #message { display: none; background: white; padding: 20px; border-radius: 15px; margin: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
   <h2>나를 30번 눌러줘! ❤️</h2>
   <p>현재: <span id="count">0</span> / 30</p>
+  
   <div id="heart" onclick="addClick()">❤️</div>
+  
   <div id="message">
-    <h3>오늘도 고생했어! 🌸</h3>
+    <h3>오구아가 소근육 발달이 좋네!! 🌸</h3>
     <p>이번 주 첫 날 무사히 넘긴 거 축하해!<br>나도 오늘 어수비 생각하면서 잘 버티고 있을거얌 ㅎㅎ.<br>오늘 밤도 푹 자고 사랑해 ㅎㅎ 잘자 응애야! 뿅♥</p>
   </div>
+  
   <script>
     let count = 0;
+    let currentSize = 80; // 하트의 기본 크기
+
     function addClick() {
       count++;
       document.getElementById('count').innerText = count;
+      
+      // 누를 때마다 하트 크기를 3px씩 키움 (30번 누르면 90px이 커짐)
+      currentSize += 3;
+      const heart = document.getElementById('heart');
+      heart.style.fontSize = currentSize + 'px';
+
       if(count >= 30) {
         document.getElementById('message').style.display = 'block';
-        document.getElementById('heart').style.pointerEvents = 'none';
+        heart.style.pointerEvents = 'none'; // 더 이상 못 누르게
       }
     }
   </script>
